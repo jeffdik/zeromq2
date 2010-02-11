@@ -1,0 +1,18 @@
+require 'rake/clean'
+
+task :default => "Zmq.dll"
+
+file "Zmq.dll" => "Zmq.cs" do
+  sh "csc /nologo /target:library Zmq.cs"
+end
+CLOBBER.add("Zmq.dll")
+
+file "TestZmq.exe" => ["Zmq.dll", "TestZmq.cs"] do |t|
+  sh "csc /nologo /r:Zmq.dll TestZmq.cs"
+end
+CLOBBER.add("TestZmq.exe")
+
+task :test => "TestZmq.exe" do
+  ENV["PATH"] += ";..\\..\\lib"
+  sh "TestZmq.exe"
+end
