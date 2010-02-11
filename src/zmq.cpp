@@ -50,6 +50,10 @@
 #include <pgm/pgm.h>
 #endif
 
+#define PACKAGE_VERSION_MAJOR 0
+#define PACKAGE_VERSION_MINOR 0
+#define PACKAGE_VERSION_PATCH 0
+
 void zmq_version (int *major_, int *minor_, int *patch_)
 {
     *major_ = PACKAGE_VERSION_MAJOR;
