@@ -36,8 +36,18 @@ namespace Zmq
                 throw new ZmqException(ZmqException.zmq_get_errno());
         }
 
+        ~Context()
+        {
+            int rc = zmq_term(ptr);
+            if (rc != 0)
+                throw new ZmqException(ZmqException.zmq_get_errno());
+        }
+
         [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
         static extern IntPtr zmq_init(int app_threads, int io_threads, int flags);
+
+        [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
+        static extern int zmq_term(IntPtr context);
     }
 
 }
