@@ -133,6 +133,7 @@ ZMQ_EXPORT size_t zmq_msg_size (zmq_msg_t *msg);
 
 #define ZMQ_POLL 1
 
+ZMQ_EXPORT int zmq_get_errno();
 ZMQ_EXPORT void *zmq_init (int app_threads, int io_threads, int flags);
 ZMQ_EXPORT int zmq_term (void *context);
 
