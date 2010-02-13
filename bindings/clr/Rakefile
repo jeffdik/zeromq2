@@ -7,12 +7,12 @@ file "Zmq.dll" => "Zmq.cs" do
 end
 CLOBBER.add("Zmq.dll")
 
-file "TestZmq.exe" => ["Zmq.dll", "TestZmq.cs"] do |t|
-  sh "csc /nologo /r:Zmq.dll TestZmq.cs"
+file "Client.exe" => ["Zmq.dll", "Client.cs"] do |t|
+  sh "csc /nologo /r:Zmq.dll Client.cs"
 end
-CLOBBER.add("TestZmq.exe")
+CLOBBER.add("Client.exe")
 
-task :test => "TestZmq.exe" do
+task :test => "Client.exe" do
   ENV["PATH"] += ";..\\..\\lib"
-  sh "TestZmq.exe"
+  sh "Client.exe"
 end
