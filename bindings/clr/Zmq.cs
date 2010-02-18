@@ -91,6 +91,13 @@ namespace Zmq
                 throw new ZmqException(ZmqException.zmq_get_errno());
         }
 
+        public void Bind(string addr)
+        {
+            int rc = zmq_bind(ptr, addr);
+            if (rc != 0)
+                throw new ZmqException(ZmqException.zmq_get_errno());
+        }
+
         public void Connect(string addr)
         {
             int rc = zmq_connect(ptr, addr);
@@ -120,6 +127,10 @@ namespace Zmq
 
         [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
         static extern int zmq_close(IntPtr context);
+
+        [DllImport("libzmq", CharSet = CharSet.Ansi,
+                   CallingConvention = CallingConvention.Cdecl)]
+        static extern int zmq_bind(IntPtr socket, string addr);
 
         [DllImport("libzmq", CharSet = CharSet.Ansi,
                    CallingConvention = CallingConvention.Cdecl)]
