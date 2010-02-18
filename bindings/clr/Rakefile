@@ -12,6 +12,11 @@ file "Client.exe" => ["Zmq.dll", "Client.cs"] do |t|
 end
 CLOBBER.add("Client.exe")
 
+file "Server.exe" => ["Zmq.dll", "Server.cs"] do |t|
+  sh "csc /nologo /r:Zmq.dll Server.cs"
+end
+CLOBBER.add("Server.exe")
+
 task :test => "Client.exe" do
   ENV["PATH"] += ";..\\..\\lib"
   sh "Client.exe"
