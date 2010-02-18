@@ -12,7 +12,7 @@ public class Go
 
         Context ctx = new Context(1, 1, 0);
         Socket s = new Socket(ctx, SocketType.REP);
-        s.Bind("tcp://192.168.0.11:5555");
+        s.Bind("tcp://127.0.0.1:5555");
 
         while (true) {
             Message query = new Message();
