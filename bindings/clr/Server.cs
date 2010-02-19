@@ -16,13 +16,13 @@ public class Go
 
         while (true) {
             using (StringMessage query = new StringMessage()) {
-                s.Recv(query, 0);
+                s.Recv(query);
                 Console.WriteLine("Received query: '{0}'", query.GetString());
             }
 
             using (StringMessage resultset = new StringMessage(resultset_string))
             {
-                s.Send(resultset, 0);
+                s.Send(resultset);
             }
         }
     }

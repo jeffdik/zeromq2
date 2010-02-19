@@ -15,10 +15,10 @@ public class Go
 
             string query_string = "SELECT * FROM mytable";
             StringMessage query = new StringMessage(query_string);
-            s.Send(query, 0);
+            s.Send(query);
 
             StringMessage resultset = new StringMessage();
-            s.Recv(resultset, 0);
+            s.Recv(resultset);
 
             Console.WriteLine("Received response: '{0}'", resultset.GetString());
         } catch (ZmqException e) {
