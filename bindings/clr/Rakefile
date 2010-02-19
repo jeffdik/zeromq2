@@ -21,3 +21,13 @@ task :test => "Client.exe" do
   ENV["PATH"] += ";..\\..\\lib"
   sh "Client.exe"
 end
+
+file "Publisher.exe" => ["Zmq.dll", "Publisher.cs"] do |t|
+  sh "csc /nologo /r:Zmq.dll Publisher.cs"
+end
+CLOBBER.add("Publisher.exe")
+
+file "Subscriber.exe" => ["Zmq.dll", "Subscriber.cs"] do |t|
+  sh "csc /nologo /r:Zmq.dll Subscriber.cs"
+end
+CLOBBER.add("Subscriber.exe")
