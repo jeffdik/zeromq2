@@ -41,13 +41,13 @@ namespace Zmq
         public static extern int zmq_msg_close(IntPtr msg);
 
         [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr zmq_msg_data(IntPtr msg);
+
+        [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
         public static extern int zmq_msg_init(IntPtr msg);
 
         [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
         public static extern int zmq_msg_init_size(IntPtr msg, int size);
-
-        [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr zmq_msg_data(IntPtr msg);
 
         [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
         public static extern int zmq_msg_size(IntPtr msg);
