@@ -11,22 +11,24 @@ public class Go
         string resultset_string = "OK";
 
         Context ctx = new Context(1, 1, 0);
-        Socket s = new Socket(ctx, SocketType.REP);
+        Socket s = ctx.CreateSocket(SocketType.REP);
         s.Bind("tcp://127.0.0.1:5555");
 
         while (true) {
-            Message query = new Message();
-            s.Recv(query, 0);
-            string query_string = Marshal.PtrToStringAnsi(query.Data);
-            Console.WriteLine("Received query: '{0}'", query_string);
-            query = null;
+            using (Message query = new Message()) {
+                s.Recv(query, 0);
+                string query_string = Marshal.PtrToStringAnsi(query.Data);
+                Console.WriteLine("Received query: '{0}'", query_string);
+            }
 
-            Message resultset = new Message(resultset_string.Length+1);
-            Encoding encoding = Encoding.ASCII;
-            byte[] bytes = encoding.GetBytes(resultset_string);
-            Marshal.Copy(bytes, 0, resultset.Data, bytes.Length);
-            Marshal.WriteByte(resultset.Data, bytes.Length, 0);
-            s.Send(resultset, 0);
+            using (Message resultset = new Message(resultset_string.Length+1))
+            {
+                Encoding encoding = Encoding.ASCII;
+                byte[] bytes = encoding.GetBytes(resultset_string);
+                Marshal.Copy(bytes, 0, resultset.Data, bytes.Length);
+                Marshal.WriteByte(resultset.Data, bytes.Length, 0);
+                s.Send(resultset, 0);
+            }
         }
     }
 }

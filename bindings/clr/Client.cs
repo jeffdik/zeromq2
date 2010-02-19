@@ -10,7 +10,7 @@ public class Go
     {
         try {
             Context ctx = new Context(1, 1, 0);
-            Socket s = new Socket(ctx, SocketType.REQ);
+            Socket s = ctx.CreateSocket(SocketType.REQ);
             s.Connect("tcp://127.0.0.1:5555");
 
             string query_string = "SELECT * FROM mytable";
