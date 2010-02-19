@@ -49,6 +49,9 @@ namespace Zmq
         [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr zmq_msg_data(IntPtr msg);
 
+        [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int zmq_msg_size(IntPtr msg);
+
         // Errors
         [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
         public static extern int zmq_get_errno();
@@ -335,6 +338,11 @@ namespace Zmq
         public IntPtr Data
         {
             get { return C.zmq_msg_data(ptr); }
+        }
+
+        public int Size
+        {
+            get { return C.zmq_msg_size(ptr); }
         }
     }
 }
