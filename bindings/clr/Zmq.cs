@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Zmq
 {
@@ -309,6 +310,11 @@ namespace Zmq
                 throw new ZmqException(C.zmq_get_errno());
         }
 
+        public Message(byte[] bytes) : this(bytes.Length)
+        {
+            Marshal.Copy(bytes, 0, Data, bytes.Length);
+        }
+
         ~Message()
         {
             Dispose(false);
@@ -343,6 +349,54 @@ namespace Zmq
         public int Size
         {
             get { return C.zmq_msg_size(ptr); }
+        }
+
+    }
+
+    public class StringMessage : Message
+    {
+        private static Encoding default_encoding = Encoding.Default;
+        public static Encoding DefaultEncoding
+        {
+            get { return default_encoding; }
+            set { default_encoding = value; }
+        }
+
+        private Encoding encoding;
+        public Encoding Encoding
+        {
+            get { return encoding; }
+        }
+
+        public StringMessage() : this(default_encoding)
+        {
+        }
+
+        public StringMessage(Encoding encoding) : base()
+        {
+            this.encoding = encoding;
+        }
+
+
+        public StringMessage(string s) : this(s, default_encoding)
+        {
+        }
+
+        public StringMessage(string s, Encoding encoding) : base(encoding.GetBytes(s))
+        {
+            this.encoding = encoding;
+        }
+
+        public string GetString()
+        {
+            return GetString(encoding);
+        }
+
+        public string GetString(Encoding encoding)
+        {
+            byte[] bytes = new byte[Size];
+            Marshal.Copy(Data, bytes, 0, bytes.Length);
+            return encoding.GetString(bytes);
         }
     }
 }
