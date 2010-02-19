@@ -68,6 +68,22 @@ namespace Zmq
         DOWNSTREAM
     }
 
+    public enum SocketOption
+    {
+        HWM=1,
+        LWM,
+        SWAP,
+        AFFINITY,
+        IDENTITY,
+        SUBSCRIBE=6,
+        UNSUBSCRIBE,
+        RATE,
+        RECOVERY_IVL,
+        MCAST_LOOP,
+        SNDBUF,
+        RCVBUF
+    }
+
     public class Socket
     {
         private IntPtr ptr;
@@ -125,6 +141,14 @@ namespace Zmq
             throw new ZmqException(ZmqException.zmq_get_errno());
         }
 
+        public int SetSockOpt(SocketOption option, IntPtr optval, int optvallen)
+        {
+            int rc = zmq_setsockopt (ptr, option, optval, optvallen);
+            if (rc != 0)
+                throw new ZmqException(ZmqException.zmq_get_errno());
+            return rc;
+        }
+
         [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
         static extern int zmq_close(IntPtr context);
 
@@ -142,6 +166,8 @@ namespace Zmq
         [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
         static extern int zmq_send(IntPtr socket, IntPtr msg, int flags);
         
+        [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
+        static extern int zmq_setsockopt(IntPtr socket, SocketOption option, IntPtr optval, int optvallen); 
         [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
         static extern IntPtr zmq_socket(IntPtr context, SocketType type);
     }
@@ -184,10 +210,28 @@ namespace Zmq
                 throw new ZmqException(ZmqException.zmq_get_errno());
         }
 
+        ~Message()
+        {
+            int rc = zmq_msg_close(ptr);
+            Marshal.FreeHGlobal(ptr);
+            if (rc != 0)
+                throw new ZmqException(ZmqException.zmq_get_errno());
+        }
+
         public IntPtr Data
         {
             get { return zmq_msg_data(ptr); }
         }
+
+        public void Close()
+        {
+            int rc = zmq_msg_close(ptr);
+            if (rc != 0)
+                throw new ZmqException(ZmqException.zmq_get_errno());
+        }
+
+        [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
+        static extern int zmq_msg_close(IntPtr msg);
 
         [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
         static extern int zmq_msg_init(IntPtr msg);
