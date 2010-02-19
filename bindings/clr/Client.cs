@@ -13,14 +13,9 @@ public class Go
             Socket s = ctx.CreateSocket(SocketType.REQ);
             s.Connect("tcp://127.0.0.1:5555");
 
-            string query_string = "SELECT * FROM mytable";
-            StringMessage query = new StringMessage(query_string);
-            s.Send(query);
+            s.SendString("SELECT * FROM mytable", Encoding.GetEncoding("Unicode"));
 
-            StringMessage resultset = new StringMessage();
-            s.Recv(resultset);
-
-            Console.WriteLine("Received response: '{0}'", resultset.GetString());
+            Console.WriteLine("Received response: '{0}'", s.RecvString());
         } catch (ZmqException e) {
             Console.WriteLine("An error occurred: {0}\n", e.Message);
             return 1;
