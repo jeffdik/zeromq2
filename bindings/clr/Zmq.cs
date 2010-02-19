@@ -242,6 +242,25 @@ namespace Zmq
             return CheckRecvSendReturnCode(rc);
         }
 
+        public string RecvString(StringMessage msg)
+        {
+            using (msg) {
+                int rc = C.zmq_recv(ptr, msg.Ptr, 0);
+                ZmqException.ThrowIfNotZero(rc);
+                return msg.GetString();
+            }
+        }
+
+        public string RecvString()
+        {
+            return RecvString(new StringMessage());
+        }
+
+        public string RecvString(Encoding encoding)
+        {
+            return RecvString(new StringMessage(encoding));
+        }
+
         public bool Send(Message msg)
         {
             return Send(msg, 0);
@@ -252,6 +271,24 @@ namespace Zmq
             int rc = C.zmq_send(ptr, msg.Ptr, flags);
             return CheckRecvSendReturnCode(rc);
         }
+
+        public bool SendString(StringMessage msg)
+        {
+            using (msg) {
+                return Send(msg);
+            }
+        }
+
+        public bool SendString(string s)
+        {
+            return SendString(new StringMessage(s));
+        }
+
+        public bool SendString(string s, Encoding encoding)
+        {
+            return SendString(new StringMessage(s, encoding));
+        }
+
 
         public int SetSockOpt(SocketOption option, IntPtr optval, int optvallen)
         {
