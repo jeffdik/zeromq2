@@ -118,6 +118,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "c_publisher_heap", "c_publi
 		{641C5F36-32EE-4323-B740-992B651CF9D6} = {641C5F36-32EE-4323-B740-992B651CF9D6}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "whats_eagain", "whats_eagain\whats_eagain.vcproj", "{1452AA51-984B-4996-9B18-C7921487F9EE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zmq_msg_t_size", "zmq_msg_t_size\zmq_msg_t_size.vcproj", "{A5346363-1261-4EE2-B507-FF942BC335BB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{641C5F36-32EE-4323-B740-992B651CF9D6} = {641C5F36-32EE-4323-B740-992B651CF9D6}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -219,6 +226,14 @@ Global
 		{BB0AB284-37D7-4745-9210-768B28D644D8}.Debug|Win32.Build.0 = Debug|Win32
 		{BB0AB284-37D7-4745-9210-768B28D644D8}.Release|Win32.ActiveCfg = Release|Win32
 		{BB0AB284-37D7-4745-9210-768B28D644D8}.Release|Win32.Build.0 = Release|Win32
+		{1452AA51-984B-4996-9B18-C7921487F9EE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1452AA51-984B-4996-9B18-C7921487F9EE}.Debug|Win32.Build.0 = Debug|Win32
+		{1452AA51-984B-4996-9B18-C7921487F9EE}.Release|Win32.ActiveCfg = Release|Win32
+		{1452AA51-984B-4996-9B18-C7921487F9EE}.Release|Win32.Build.0 = Release|Win32
+		{A5346363-1261-4EE2-B507-FF942BC335BB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A5346363-1261-4EE2-B507-FF942BC335BB}.Debug|Win32.Build.0 = Debug|Win32
+		{A5346363-1261-4EE2-B507-FF942BC335BB}.Release|Win32.ActiveCfg = Release|Win32
+		{A5346363-1261-4EE2-B507-FF942BC335BB}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
