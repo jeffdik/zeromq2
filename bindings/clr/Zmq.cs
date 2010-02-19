@@ -231,10 +231,20 @@ namespace Zmq
             ZmqException.ThrowIfNotZero(rc);
         }
 
+        public bool Recv(Message msg)
+        {
+            return Recv(msg, 0);
+        }
+
         public bool Recv(Message msg, int flags)
         {
             int rc = C.zmq_recv(ptr, msg.Ptr, flags);
             return CheckRecvSendReturnCode(rc);
+        }
+
+        public bool Send(Message msg)
+        {
+            return Send(msg, 0);
         }
 
         public bool Send(Message msg, int flags)
