@@ -15,17 +15,13 @@ public class Go
         s.Bind("tcp://127.0.0.1:5555");
 
         while (true) {
-            using (Message query = new Message()) {
+            using (StringMessage query = new StringMessage()) {
                 s.Recv(query, 0);
-                string query_string = Marshal.PtrToStringAnsi(query.Data, query.Size);
-                Console.WriteLine("Received query: '{0}'", query_string);
+                Console.WriteLine("Received query: '{0}'", query.GetString());
             }
 
-            using (Message resultset = new Message(resultset_string.Length))
+            using (StringMessage resultset = new StringMessage(resultset_string))
             {
-                Encoding encoding = Encoding.ASCII;
-                byte[] bytes = encoding.GetBytes(resultset_string);
-                Marshal.Copy(bytes, 0, resultset.Data, bytes.Length);
                 s.Send(resultset, 0);
             }
         }
