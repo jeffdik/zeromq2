@@ -17,6 +17,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <string.h>
+
 #include "object.hpp"
 #include "dispatcher.hpp"
 #include "err.hpp"
@@ -77,17 +79,21 @@ void zmq::object_t::process_command (command_t &cmd_)
 
     case command_t::own:
         process_own (cmd_.args.own.object);
-        return;
+        break;
 
     case command_t::attach:
-        process_attach (cmd_.args.attach.engine);
+        process_attach (cmd_.args.attach.engine,
+            blob_t (cmd_.args.attach.peer_identity,
+            cmd_.args.attach.peer_identity_size));
         process_seqnum ();
-        return;
+        break;
 
     case command_t::bind:
-        process_bind (cmd_.args.bind.in_pipe, cmd_.args.bind.out_pipe);
+        process_bind (cmd_.args.bind.in_pipe, cmd_.args.bind.out_pipe,
+            blob_t (cmd_.args.bind.peer_identity,
+            cmd_.args.bind.peer_identity_size));
         process_seqnum ();
-        return;
+        break;
 
     case command_t::pipe_term:
         process_pipe_term ();
@@ -95,23 +101,27 @@ void zmq::object_t::process_command (command_t &cmd_)
 
     case command_t::pipe_term_ack:
         process_pipe_term_ack ();
-        return;
+        break;
 
     case command_t::term_req:
         process_term_req (cmd_.args.term_req.object);
-        return;
+        break;
     
     case command_t::term:
         process_term ();
-        return;
+        break;
 
     case command_t::term_ack:
         process_term_ack ();
-        return;
+        break;
 
     default:
         zmq_assert (false);
     }
+
+    //  The assumption here is that each command is processed once only,
+    //  so deallocating it after processing is all right.
+    deallocate_command (&cmd_);
 }
 
 void zmq::object_t::register_pipe (class pipe_t *pipe_)
@@ -176,7 +186,7 @@ void zmq::object_t::send_own (socket_base_t *destination_, owned_t *object_)
 }
 
 void zmq::object_t::send_attach (session_t *destination_, i_engine *engine_,
-    bool inc_seqnum_)
+    const blob_t &peer_identity_, bool inc_seqnum_)
 {
     if (inc_seqnum_)
         destination_->inc_seqnum ();
@@ -185,11 +195,26 @@ void zmq::object_t::send_attach (session_t *destination_, i_engine *engine_,
     cmd.destination = destination_;
     cmd.type = command_t::attach;
     cmd.args.attach.engine = engine_;
+    if (peer_identity_.empty ()) {
+        cmd.args.attach.peer_identity_size = 0;
+        cmd.args.attach.peer_identity = NULL;
+    }
+    else {
+        zmq_assert (peer_identity_.size () <= 0xff);
+        cmd.args.attach.peer_identity_size =
+            (unsigned char) peer_identity_.size ();
+        cmd.args.attach.peer_identity =
+            (unsigned char*) malloc (peer_identity_.size ());
+        zmq_assert (cmd.args.attach.peer_identity_size);
+        memcpy (cmd.args.attach.peer_identity, peer_identity_.data (),
+            peer_identity_.size ());
+    }
     send_command (cmd);
 }
 
 void zmq::object_t::send_bind (socket_base_t *destination_,
-    reader_t *in_pipe_, writer_t *out_pipe_, bool inc_seqnum_)
+    reader_t *in_pipe_, writer_t *out_pipe_, const blob_t &peer_identity_,
+    bool inc_seqnum_)
 {
     if (inc_seqnum_)
         destination_->inc_seqnum ();
@@ -199,6 +224,20 @@ void zmq::object_t::send_bind (socket_base_t *destination_,
     cmd.type = command_t::bind;
     cmd.args.bind.in_pipe = in_pipe_;
     cmd.args.bind.out_pipe = out_pipe_;
+    if (peer_identity_.empty ()) {
+        cmd.args.bind.peer_identity_size = 0;
+        cmd.args.bind.peer_identity = NULL;
+    }
+    else {
+        zmq_assert (peer_identity_.size () <= 0xff);
+        cmd.args.bind.peer_identity_size =
+            (unsigned char) peer_identity_.size ();
+        cmd.args.bind.peer_identity =
+            (unsigned char*) malloc (peer_identity_.size ());
+        zmq_assert (cmd.args.bind.peer_identity_size);
+        memcpy (cmd.args.bind.peer_identity, peer_identity_.data (),
+            peer_identity_.size ());
+    }
     send_command (cmd);
 }
 
@@ -267,12 +306,14 @@ void zmq::object_t::process_own (owned_t *object_)
     zmq_assert (false);
 }
 
-void zmq::object_t::process_attach (i_engine *engine_)
+void zmq::object_t::process_attach (i_engine *engine_,
+    const blob_t &peer_identity_)
 {
     zmq_assert (false);
 }
 
-void zmq::object_t::process_bind (reader_t *in_pipe_, writer_t *out_pipe_)
+void zmq::object_t::process_bind (reader_t *in_pipe_, writer_t *out_pipe_,
+    const blob_t &peer_identity_)
 {
     zmq_assert (false);
 }

@@ -28,7 +28,6 @@ zmq::sub_t::sub_t (class app_thread_t *parent_) :
     socket_base_t (parent_),
     has_message (false)
 {
-    options.type = ZMQ_SUB;
     options.requires_in = true;
     options.requires_out = false;
     zmq_msg_init (&message);
@@ -40,7 +39,7 @@ zmq::sub_t::~sub_t ()
 }
 
 void zmq::sub_t::xattach_pipes (class reader_t *inpipe_,
-    class writer_t *outpipe_)
+    class writer_t *outpipe_, const blob_t &peer_identity_)
 {
     zmq_assert (inpipe_ && !outpipe_);
     fq.attach (inpipe_);

@@ -17,26 +17,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __ZMQ_I_ENDPOINT_HPP_INCLUDED__
-#define __ZMQ_I_ENDPOINT_HPP_INCLUDED__
+#include <stdlib.h>
 
-#include "blob.hpp"
+#include "command.hpp"
 
-namespace zmq
+void zmq::deallocate_command (command_t *cmd_)
 {
-
-    struct i_endpoint
-    {
-        virtual ~i_endpoint () {}
-
-        virtual void attach_pipes (class reader_t *inpipe_,
-            class writer_t *outpipe_, const blob_t &peer_identity_) = 0;
-        virtual void detach_inpipe (class reader_t *pipe_) = 0;
-        virtual void detach_outpipe (class writer_t *pipe_) = 0;
-        virtual void kill (class reader_t *pipe_) = 0;
-        virtual void revive (class reader_t *pipe_) = 0;
-    };
-
+    switch (cmd_->type) {
+    case command_t::attach:
+        if (cmd_->args.attach.peer_identity)
+            free (cmd_->args.attach.peer_identity);
+        break;
+    case command_t::bind:
+        if (cmd_->args.bind.peer_identity)
+            free (cmd_->args.bind.peer_identity);
+        break;
+    default:
+        /*  noop  */;
+    }
 }
-
-#endif

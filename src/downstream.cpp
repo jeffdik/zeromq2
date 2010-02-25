@@ -26,7 +26,6 @@
 zmq::downstream_t::downstream_t (class app_thread_t *parent_) :
     socket_base_t (parent_)
 {
-    options.type = ZMQ_DOWNSTREAM;
     options.requires_in = false;
     options.requires_out = true;
 }
@@ -36,7 +35,7 @@ zmq::downstream_t::~downstream_t ()
 }
 
 void zmq::downstream_t::xattach_pipes (class reader_t *inpipe_,
-    class writer_t *outpipe_)
+    class writer_t *outpipe_, const blob_t &peer_identity_)
 {
     zmq_assert (!inpipe_ && outpipe_);
     lb.attach (outpipe_);

@@ -66,6 +66,8 @@ namespace zmq
             //  Attach the engine to the session.
             struct {
                 struct i_engine *engine;
+                unsigned char peer_identity_size;
+                unsigned char *peer_identity;
             } attach;
 
             //  Sent from session to socket to establish pipe(s) between them.
@@ -73,6 +75,8 @@ namespace zmq
             struct {
                 class reader_t *in_pipe;
                 class writer_t *out_pipe;
+                unsigned char peer_identity_size;
+                unsigned char *peer_identity;
             } bind;
 
             //  Sent by pipe writer to inform dormant pipe reader that there
@@ -106,6 +110,9 @@ namespace zmq
 
         } args;
     };
+
+    //  Function to deallocate dynamically allocated components of the command.
+    void deallocate_command (command_t *cmd_);
 
 }    
 

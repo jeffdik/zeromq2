@@ -20,10 +20,9 @@
 #ifndef __ZMQ_OPTIONS_HPP_INCLUDED__
 #define __ZMQ_OPTIONS_HPP_INCLUDED__
 
-#include <string>
-
 #include "stddef.h"
 #include "stdint.hpp"
+#include "blob.hpp"
 
 namespace zmq
 {
@@ -34,14 +33,11 @@ namespace zmq
 
         int setsockopt (int option_, const void *optval_, size_t optvallen_);
 
-        //  Type of the associated socket. One of the constants defined in zmq.h
-        int type;
-
         int64_t hwm;
         int64_t lwm;
         int64_t swap;
         uint64_t affinity;
-        std::string identity;
+        blob_t identity;
 
         //  Maximum tranfer rate [kb/s]. Default 100kb/s.
         uint32_t rate;
@@ -59,6 +55,15 @@ namespace zmq
         //  provided by the specific socket type.
         bool requires_in;
         bool requires_out;
+
+        //  If true, when connecting, pipes are created immediately without
+        //  waiting for the connection to be established. That way the socket
+        //  is not aware of the peer's identity, however, it is able to send
+        //  messages straight away.
+        bool immediate_connect;
+
+        //  If true, socket requires tracerouting the messages.
+        bool traceroute;
     };
 
 }

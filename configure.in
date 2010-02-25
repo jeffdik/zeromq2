@@ -101,7 +101,7 @@ fi
 AC_MSG_CHECKING([whether to build documentation])
 AC_MSG_RESULT([$build_doc])
 AC_MSG_CHECKING([whether to install manpages])
-if test ! -f "./doc/zmq.7"; then
+if test "x$build_doc" = "xno" -a "x$install_man" = "xyes" -a ! -f "./doc/zmq.7"; then
     AC_MSG_ERROR([configure thinks we want to install manpages but they're not present. Help!])
 fi
 AC_MSG_RESULT([$install_man])
@@ -158,11 +158,21 @@ case "${host_os}" in
         # Define on NetBSD to enable all library features
         CPPFLAGS="-D_NETBSD_SOURCE $CPPFLAGS"
         AC_DEFINE(ZMQ_HAVE_NETBSD, 1, [Have NetBSD OS])
-        # NetBSD 5.0 and newer provides atomic operations
+        # NetBSD 5.0 and newer provides atomic operations but we can
+        # only use these on systems where PR #42842 has been fixed so
+        # we must try and link a test program using C++.
         netbsd_has_atomic=no
-        # XXX As of 5.0.1 the functions declared in atomic.h are
-        # missing "extern C", disable this until upstream fixes it.
-        # AC_CHECK_HEADERS(atomic.h, [netbsd_has_atomic=yes])
+        AC_MSG_CHECKING([whether atomic operations can be used])
+        AC_LANG_PUSH([C++])
+        AC_LINK_IFELSE([AC_LANG_PROGRAM(
+            [[#include <atomic.h>]],
+            [[uint32_t value;
+              atomic_cas_32 (&value, 0, 0);
+              return 0;]])],
+            [netbsd_has_atomic=yes],
+            [netbsd_has_atomic=no])
+        AC_LANG_POP([C++])
+        AC_MSG_RESULT([$netbsd_has_atomic])
         if test "x$netbsd_has_atomic" = "xno"; then
             AC_DEFINE(ZMQ_FORCE_MUTEXES, 1, [Force to use mutexes])
         fi
@@ -199,6 +209,9 @@ case "${host_os}" in
         CFLAGS="${CFLAGS} -std=c99"
         on_mingw32="yes"
         install_man="no"
+        ;;
+    *cygwin*)
+        AC_DEFINE(ZMQ_HAVE_CYGWIN, 1, [Have Cygwin])
         ;;
     *)
         AC_MSG_ERROR([unsupported system: ${host_os}.])
@@ -440,7 +453,7 @@ fi
 #  PGM extension
 pgm_ext="no"
 
-pgm_basename="libpgm-2.0.23rc8"
+pgm_basename="libpgm-2.0.24"
 
 AC_SUBST(pgm_basename)
 
@@ -494,10 +507,10 @@ if test "x$with_pgm_ext" != "xno"; then
     LIBZMQ_EXTRA_CXXFLAGS="${LIBZMQ_EXTRA_CXXFLAGS} ${GLIB_CFLAGS} "
     LIBZMQ_EXTRA_LDFLAGS="${LIBZMQ_EXTRA_LDFLAGS} ${GLIB_LIBS} "
     
-    #  Bunzip2, Perl and Python are required duing PGM build
-    AC_CHECK_PROG(have_bunzip2, bunzip2, yes, no)
-    if test "x$have_bunzip2" != "xyes"; then
-        AC_MSG_ERROR([bunzip2 is required for building the PGM extension.])
+    #  Gzip, Perl and Python are required duing PGM build
+    AC_CHECK_PROG(have_gzip, gzip, yes, no)
+    if test "x$have_gzip" != "xyes"; then
+        AC_MSG_ERROR([gzip is required for building the PGM extension.])
     fi
     AC_CHECK_PROG(have_perl, perl, yes, no)
     if test "x$have_perl" != "xyes"; then
@@ -511,9 +524,9 @@ if test "x$with_pgm_ext" != "xno"; then
     fi
 
     #  Unpack libpgm
-    AC_MSG_NOTICE([Unpacking ${pgm_basename}.tar.bz2])
-    if ! bunzip2 -c foreign/openpgm/${pgm_basename}.tar.bz2 | tar -xf - -C foreign/openpgm/; then
-        AC_MSG_ERROR([cannot unpack the foreign/openpgm/${pgm_basename}.tar.bz2 file.])
+    AC_MSG_NOTICE([Unpacking ${pgm_basename}.tar.gz])
+    if ! gzip -dc foreign/openpgm/${pgm_basename}.tar.gz | tar -xf - -C foreign/openpgm/; then
+        AC_MSG_ERROR([cannot unpack the foreign/openpgm/${pgm_basename}.tar.gz file.])
     fi
 
     #  Success!
@@ -576,13 +589,6 @@ if test "x$with_perf" = "xno" -a "x$with_pgm_examples" = "xyes"; then
     AC_MSG_ERROR([cannot configure --with-pgm-examples without --with-perf.]);
 fi
 
-# Chat example
-chat="no"
-AC_ARG_WITH([chat], [AS_HELP_STRING([--with-chat], [build chatroom example [default=no]])], [with_chat=yes], [with_chat=no])
-if test "x$with_chat" != "xno"; then
-    chat="yes"
-fi
-
 AM_CONDITIONAL(BUILD_PYTHON, test "x$pyzmq" = "xyes")
 AM_CONDITIONAL(BUILD_JAVA, test "x$jzmq" = "xyes")
 AM_CONDITIONAL(BUILD_PYTHON, test "x$pyzmq" = "xyes")
@@ -595,7 +601,6 @@ AM_CONDITIONAL(BUILD_FORWARDER, test "x$forwarder" = "xyes")
 AM_CONDITIONAL(BUILD_STREAMER, test "x$streamer" = "xyes")
 AM_CONDITIONAL(BUILD_QUEUE, test "x$queue" = "xyes")  
 AM_CONDITIONAL(BUILD_PERF, test "x$perf" = "xyes")
-AM_CONDITIONAL(BUILD_CHAT, test "x$chat" = "xyes")
 AM_CONDITIONAL(ON_MINGW, test "x$on_mingw32" = "xyes")
 AM_CONDITIONAL(BUILD_PGM_EXAMPLES, test "x$with_pgm_examples" = "xyes")
 AM_CONDITIONAL(INSTALL_MAN, test "x$install_man" = "xyes")
@@ -610,7 +615,6 @@ AC_SUBST(LIBZMQ_EXTRA_LDFLAGS)
 
 
 # Checks for library functions.
-AC_FUNC_MALLOC
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(perror gettimeofday memset socket getifaddrs freeifaddrs)
 
@@ -619,8 +623,7 @@ AC_OUTPUT(Makefile src/Makefile doc/Makefile bindings/python/Makefile \
     bindings/java/Makefile perf/Makefile perf/c/Makefile perf/cpp/Makefile \
     perf/python/Makefile perf/ruby/Makefile perf/java/Makefile src/libzmq.pc \
     devices/Makefile devices/zmq_forwarder/Makefile \
-    devices/zmq_streamer/Makefile devices/zmq_queue/Makefile bindings/Makefile \
-    examples/Makefile examples/chat/Makefile)
+    devices/zmq_streamer/Makefile devices/zmq_queue/Makefile bindings/Makefile)
 
 #  On Linux patch libtool to delete hardcoded paths (rpath).
 case "${host_os}" in
@@ -662,8 +665,6 @@ AC_MSG_RESULT([     Forwarder: $forwarder])
 AC_MSG_RESULT([     Streamer: $streamer])
 AC_MSG_RESULT([     Queue: $queue])
 AC_MSG_RESULT([   Performance tests: $perf])
-AC_MSG_RESULT([   Examples:])
-AC_MSG_RESULT([     Chat: $chat])
 AC_MSG_RESULT([])
 AC_MSG_RESULT([ ******************************************************** ])
 AC_MSG_RESULT([])

@@ -17,25 +17,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __ZMQ_I_ENDPOINT_HPP_INCLUDED__
-#define __ZMQ_I_ENDPOINT_HPP_INCLUDED__
+#ifndef __ZMQ_BLOB_HPP_INCLUDED__
+#define __ZMQ_BLOB_HPP_INCLUDED__
 
-#include "blob.hpp"
+#include <string>
 
 namespace zmq
 {
 
-    struct i_endpoint
-    {
-        virtual ~i_endpoint () {}
-
-        virtual void attach_pipes (class reader_t *inpipe_,
-            class writer_t *outpipe_, const blob_t &peer_identity_) = 0;
-        virtual void detach_inpipe (class reader_t *pipe_) = 0;
-        virtual void detach_outpipe (class writer_t *pipe_) = 0;
-        virtual void kill (class reader_t *pipe_) = 0;
-        virtual void revive (class reader_t *pipe_) = 0;
-    };
+    //  Object to hold dynamically allocated opaque binary data.
+    typedef std::basic_string <unsigned char> blob_t;
 
 }
 

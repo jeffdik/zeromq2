@@ -89,8 +89,11 @@ int zmq::pgm_socket_t::init (bool udp_encapsulation_, const char *network_)
 
     if (options.identity.size () > 0) {
 
-        //  Create gsi from identity string.
-        gsi_base = options.identity;
+        //  Create gsi from identity.
+        //  TODO: We assume that identity is standard C string here.
+        //  What if it contains binary zeroes?
+        gsi_base.assign ((const char*) options.identity.data (),
+            options.identity.size ());
     } else {
 
         //  Generate random gsi.
@@ -309,6 +312,12 @@ int zmq::pgm_socket_t::init (bool udp_encapsulation_, const char *network_)
               pgm_error->code == PGM_IF_ERROR_NODATA ||
               pgm_error->code == PGM_IF_ERROR_NONAME ||
               pgm_error->code == PGM_IF_ERROR_SERVICE)) {
+            g_error_free (pgm_error);
+            errno = EINVAL;
+            return -1;
+        }
+        if (pgm_error->domain == PGM_TRANSPORT_ERROR && (
+              pgm_error->code == PGM_TRANSPORT_ERROR_FAILED)) {
             g_error_free (pgm_error);
             errno = EINVAL;
             return -1;

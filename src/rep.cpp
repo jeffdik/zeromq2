@@ -30,9 +30,13 @@ zmq::rep_t::rep_t (class app_thread_t *parent_) :
     waiting_for_reply (false),
     reply_pipe (NULL)
 {
-    options.type = ZMQ_REP;
     options.requires_in = true;
     options.requires_out = true;
+
+    //  We don't need immediate connect. We'll be able to send messages
+    //  (replies) only when connection is established and thus requests
+    //  can arrive anyway.
+    options.immediate_connect = false;
 }
 
 zmq::rep_t::~rep_t ()
@@ -40,7 +44,7 @@ zmq::rep_t::~rep_t ()
 }
 
 void zmq::rep_t::xattach_pipes (class reader_t *inpipe_,
-    class writer_t *outpipe_)
+    class writer_t *outpipe_, const blob_t &peer_identity_)
 {
     zmq_assert (inpipe_ && outpipe_);
     zmq_assert (in_pipes.size () == out_pipes.size ());

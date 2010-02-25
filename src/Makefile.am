@@ -63,6 +63,7 @@ libzmq_la_SOURCES = app_thread.hpp \
     atomic_bitmap.hpp \
     atomic_counter.hpp \
     atomic_ptr.hpp \
+    blob.hpp \
     command.hpp \
     config.hpp \
     decoder.hpp \
@@ -131,6 +132,7 @@ libzmq_la_SOURCES = app_thread.hpp \
     zmq_init.hpp \
     zmq_listener.hpp \
     app_thread.cpp \
+    command.cpp \
     devpoll.cpp \
     dispatcher.cpp \
     downstream.cpp \

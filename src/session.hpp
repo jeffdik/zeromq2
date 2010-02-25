@@ -20,12 +20,11 @@
 #ifndef __ZMQ_SESSION_HPP_INCLUDED__
 #define __ZMQ_SESSION_HPP_INCLUDED__
 
-#include <string>
-
 #include "i_inout.hpp"
 #include "i_endpoint.hpp"
 #include "owned.hpp"
 #include "options.hpp"
+#include "blob.hpp"
 
 namespace zmq
 {
@@ -38,10 +37,9 @@ namespace zmq
         session_t (object_t *parent_, socket_base_t *owner_,
             const options_t &options_);
 
-        //  Creates named session. If name is NULL, transient session with
-        //  auto-generated name is created.
+        //  Creates named session.
         session_t (object_t *parent_, socket_base_t *owner_,
-            const options_t &options_, const char *name_);
+            const options_t &options_, const blob_t &peer_identity_);
 
         //  i_inout interface implementation.
         bool read (::zmq_msg_t *msg_);
@@ -53,7 +51,8 @@ namespace zmq
         uint64_t get_ordinal ();
 
         //  i_endpoint interface implementation.
-        void attach_pipes (class reader_t *inpipe_, class writer_t *outpipe_);
+        void attach_pipes (class reader_t *inpipe_, class writer_t *outpipe_,
+            const blob_t &peer_identity_);
         void detach_inpipe (class reader_t *pipe_);
         void detach_outpipe (class writer_t *pipe_);
         void kill (class reader_t *pipe_);
@@ -66,7 +65,8 @@ namespace zmq
         //  Handlers for incoming commands.
         void process_plug ();
         void process_unplug ();
-        void process_attach (struct i_engine *engine_);
+        void process_attach (struct i_engine *engine_,
+            const blob_t &peer_identity_);
 
         //  Inbound pipe, i.e. one the session is getting messages from.
         class reader_t *in_pipe;
@@ -79,18 +79,13 @@ namespace zmq
 
         struct i_engine *engine;
 
-        enum {
-            transient,
-            named,
-            unnamed
-        } type;
-
-        //  Ordinal of the session (if any).
+        //  Session is identified by ordinal in the case when it was created
+        //  before connection to the peer was established and thus we are
+        //  unaware of peer's identity.
         uint64_t ordinal;
 
-        //  The name of the session. One that is used to register it with
-        //  socket-level repository of sessions.
-        std::string name;
+        //  Identity of the peer.
+        blob_t peer_identity;
 
         //  Inherited socket options.
         options_t options;

@@ -23,7 +23,6 @@
 #include <set>
 #include <map>
 #include <vector>
-#include <string>
 
 #include "../bindings/c/zmq.h"
 
@@ -35,6 +34,7 @@
 #include "stdint.hpp"
 #include "atomic_counter.hpp"
 #include "stdint.hpp"
+#include "blob.hpp"
 
 namespace zmq
 {
@@ -78,15 +78,17 @@ namespace zmq
         //  There are two distinct types of sessions: those identified by name
         //  and those identified by ordinal number. Thus two sets of session
         //  management functions.
-        bool register_session (const char *name_, class session_t *session_);
-        void unregister_session (const char *name_);
-        class session_t *find_session (const char *name_);
+        bool register_session (const blob_t &peer_identity_,
+            class session_t *session_);
+        void unregister_session (const blob_t &peer_identity_);
+        class session_t *find_session (const blob_t &peer_identity_);
         uint64_t register_session (class session_t *session_);
         void unregister_session (uint64_t ordinal_);
         class session_t *find_session (uint64_t ordinal_);
 
         //  i_endpoint interface implementation.
-        void attach_pipes (class reader_t *inpipe_, class writer_t *outpipe_);
+        void attach_pipes (class reader_t *inpipe_, class writer_t *outpipe_,
+            const blob_t &peer_identity_);
         void detach_inpipe (class reader_t *pipe_);
         void detach_outpipe (class writer_t *pipe_);
         void kill (class reader_t *pipe_);
@@ -99,7 +101,7 @@ namespace zmq
 
         //  Pipe management is done by individual socket types.
         virtual void xattach_pipes (class reader_t *inpipe_,
-            class writer_t *outpipe_) = 0;
+            class writer_t *outpipe_, const blob_t &peer_identity_) = 0;
         virtual void xdetach_inpipe (class reader_t *pipe_) = 0;
         virtual void xdetach_outpipe (class writer_t *pipe_) = 0;
         virtual void xkill (class reader_t *pipe_) = 0;
@@ -121,7 +123,8 @@ namespace zmq
 
         //  Handlers for incoming commands.
         void process_own (class owned_t *object_);
-        void process_bind (class reader_t *in_pipe_, class writer_t *out_pipe_);
+        void process_bind (class reader_t *in_pipe_, class writer_t *out_pipe_,
+            const blob_t &peer_identity_);
         void process_term_req (class owned_t *object_);
         void process_term_ack ();
         void process_seqnum ();
@@ -155,7 +158,7 @@ namespace zmq
         //  within the socket, instead they are used by I/O objects owned by
         //  the socket. As those objects can live in different threads,
         //  the access is synchronised by mutex.
-        typedef std::map <std::string, session_t*> named_sessions_t;
+        typedef std::map <blob_t, session_t*> named_sessions_t;
         named_sessions_t named_sessions;
         typedef std::map <uint64_t, session_t*> unnamed_sessions_t;
         unnamed_sessions_t unnamed_sessions;

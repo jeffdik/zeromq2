@@ -25,7 +25,6 @@
 zmq::xreq_t::xreq_t (class app_thread_t *parent_) :
     socket_base_t (parent_)
 {
-    options.type = ZMQ_REQ;
     options.requires_in = true;
     options.requires_out = true;
 }
@@ -35,7 +34,7 @@ zmq::xreq_t::~xreq_t ()
 }
 
 void zmq::xreq_t::xattach_pipes (class reader_t *inpipe_,
-    class writer_t *outpipe_)
+    class writer_t *outpipe_, const blob_t &peer_identity_)
 {
     zmq_assert (inpipe_ && outpipe_);
     fq.attach (inpipe_);

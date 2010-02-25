@@ -17,6 +17,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <string.h>
+
 #include <new>
 
 #include "zmq_engine.hpp"
@@ -160,11 +162,14 @@ void zmq::zmq_engine_t::revive ()
     out_event ();
 }
 
-void zmq::zmq_engine_t::traceroute (unsigned char *identity_,
-    size_t identity_size_)
+void zmq::zmq_engine_t::add_prefix (const blob_t &identity_)
+{
+    decoder.add_prefix (identity_);
+}
+
+void zmq::zmq_engine_t::trim_prefix ()
 {
     encoder.trim_prefix ();
-    decoder.add_prefix (identity_, identity_size_);
 }
 
 void zmq::zmq_engine_t::error ()
