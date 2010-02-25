@@ -353,16 +353,14 @@ namespace Zmq
         {
             ptr = Marshal.AllocHGlobal(ZMQ_MSG_T_SIZE);
             int rc = C.zmq_msg_init(ptr);
-            if (rc != 0)
-                throw new ZmqException(C.zmq_errno());
+            ZmqException.ThrowIfNotZero(rc);
         }
 
         public Message(int size)
         {
             ptr = Marshal.AllocHGlobal(ZMQ_MSG_T_SIZE);
             int rc = C.zmq_msg_init_size(ptr, size);
-            if (rc != 0)
-                throw new ZmqException(C.zmq_errno());
+            ZmqException.ThrowIfNotZero(rc);
         }
 
         public Message(byte[] bytes) : this(bytes.Length)
