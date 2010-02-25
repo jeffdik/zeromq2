@@ -219,11 +219,6 @@ size_t zmq_msg_size (zmq_msg_t *msg_)
     return ((zmq::msg_content_t*) msg_->content)->size;
 }
 
-int zmq_get_errno()
-{
-	return errno;
-}
-
 void *zmq_init (int app_threads_, int io_threads_, int flags_)
 {
     //  There should be at least a single application thread managed
