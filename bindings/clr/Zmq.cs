@@ -55,7 +55,7 @@ namespace Zmq
 
         // Errors
         [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int zmq_get_errno();
+        public static extern int zmq_errno();
 
         [DllImport("libzmq", CharSet = CharSet.Ansi,
                    CallingConvention = CallingConvention.Cdecl)]
@@ -120,7 +120,7 @@ namespace Zmq
 
         private static void Throw()
         {
-                throw new ZmqException(C.zmq_get_errno());
+                throw new ZmqException(C.zmq_errno());
         }
     }
 
@@ -301,9 +301,9 @@ namespace Zmq
         {
             if (rc == 0)
                 return true;
-            if ((rc == -1) && (C.zmq_get_errno() == EAGAIN))
+            if ((rc == -1) && (C.zmq_errno() == EAGAIN))
                 return false;
-            throw new ZmqException(C.zmq_get_errno());
+            throw new ZmqException(C.zmq_errno());
         }
     }
 
@@ -346,7 +346,7 @@ namespace Zmq
             ptr = Marshal.AllocHGlobal(ZMQ_MSG_T_SIZE);
             int rc = C.zmq_msg_init(ptr);
             if (rc != 0)
-                throw new ZmqException(C.zmq_get_errno());
+                throw new ZmqException(C.zmq_errno());
         }
 
         public Message(int size)
@@ -354,7 +354,7 @@ namespace Zmq
             ptr = Marshal.AllocHGlobal(ZMQ_MSG_T_SIZE);
             int rc = C.zmq_msg_init_size(ptr, size);
             if (rc != 0)
-                throw new ZmqException(C.zmq_get_errno());
+                throw new ZmqException(C.zmq_errno());
         }
 
         public Message(byte[] bytes) : this(bytes.Length)
