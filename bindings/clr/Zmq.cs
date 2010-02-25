@@ -26,6 +26,9 @@ namespace Zmq
         public static extern int zmq_connect(IntPtr socket, string addr);
 
         [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int zmq_flush(IntPtr socket);
+
+        [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
         public static extern int zmq_recv(IntPtr socket, IntPtr msg, int flags);
 
         [DllImport("libzmq", CallingConvention = CallingConvention.Cdecl)]
@@ -166,7 +169,6 @@ namespace Zmq
                 ZmqException.ThrowIfNotZero(rc);
             }
         }
-            
     }
 
     public class Socket : IDisposable
@@ -228,6 +230,12 @@ namespace Zmq
         public void Connect(string addr)
         {
             int rc = C.zmq_connect(ptr, addr);
+            ZmqException.ThrowIfNotZero(rc);
+        }
+
+        public void Flush()
+        {
+            int rc = C.zmq_flush(ptr);
             ZmqException.ThrowIfNotZero(rc);
         }
 
