@@ -2,10 +2,32 @@ require 'rake/clean'
 
 task :default => "Zmq.dll"
 
-file "Zmq.dll" => "Zmq.cs" do
-  sh "csc /nologo /target:library Zmq.cs"
+file "Zmq.module" => "Zmq.cs" do
+  sh "csc /nologo /out:Zmq.module /target:module Zmq.cs"
 end
-CLOBBER.add("Zmq.dll")
+CLOBBER.add("Zmq.module")
+
+sn_keypair = "Zmq.snk"
+desc "Create #{sn_keypair}"
+file sn_keypair do |t|
+  sh "sn -k #{sn_keypair}"
+end
+
+def al(h)
+  out = h[:out]
+  module_name = h[:module_name]
+  keyfile = h[:keyfile]
+  desc "Create #{out}"
+  file out => [module_name, keyfile] do |t|
+    sh "al /out:#{out} #{module_name} /keyfile:#{keyfile}"
+  end
+end
+
+al(:out => "Zmq.dll",
+   :module_name => "Zmq.module",
+   :keyfile => sn_keypair)
+CLOBBER.add("Zmq.dll");
+
 
 file "Client.exe" => ["Zmq.dll", "Client.cs"] do |t|
   sh "csc /nologo /r:Zmq.dll Client.cs"
@@ -31,3 +53,28 @@ file "Subscriber.exe" => ["Zmq.dll", "Subscriber.cs"] do |t|
   sh "csc /nologo /r:Zmq.dll Subscriber.cs"
 end
 CLOBBER.add("Subscriber.exe")
+
+file "PublishOne.exe" => ["Zmq.dll", "PublishOne.cs"] do |t|
+  sh "csc /nologo /r:Zmq.dll PublishOne.cs"
+end
+CLOBBER.add("PublishOne.exe")
+
+file "StringPublisher.exe" => ["Zmq.dll", "StringPublisher.cs"] do |t|
+  sh "csc /nologo /r:Zmq.dll StringPublisher.cs"
+end
+CLOBBER.add("StringPublisher.exe")
+
+file "StringSubscriber.exe" => ["Zmq.dll", "StringSubscriber.cs"] do |t|
+  sh "csc /nologo /r:Zmq.dll StringSubscriber.cs"
+end
+CLOBBER.add("StringSubscriber.exe")
+
+file "ClientP2P.exe" => ["Zmq.dll", "ClientP2P.cs"] do |t|
+  sh "csc /nologo /r:Zmq.dll ClientP2P.cs"
+end
+CLOBBER.add("ClientP2P.exe")
+
+file "ServerP2P.exe" => ["Zmq.dll", "ServerP2P.cs"] do |t|
+  sh "csc /nologo /r:Zmq.dll ServerP2P.cs"
+end
+CLOBBER.add("ServerP2P.exe")
